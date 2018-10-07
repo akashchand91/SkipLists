@@ -12,13 +12,20 @@ public class SkipList<T extends Comparable<? super T>>  {
 	static class Entry<E extends Comparable<? super E>> {
 		E element;
 		Entry[] next;
-		Entry prev;
+//		Entry prev;
 
 		public Entry(E x, int lev) {
 			element = x;
 			next = new Entry[lev];
+//			prev = new Entry(null,0,null);
 			// add more code if needed
 		}
+		
+//		private Entry(E x, int lev, Entry p) {
+//			element = x;
+//			next = new Entry[lev];
+//			prev = p;
+//		}
 	
 		public E getElement() {
 			return element;
@@ -39,6 +46,9 @@ public class SkipList<T extends Comparable<? super T>>  {
 		maxLevel=1;
 		last=new Entry[33];
 		random = new Random();
+		for(int i = 32;i>=0;i--) {
+			head.next[i] = tail;
+		}
 	}
 
 	// Add x to list. If x already exists, reject it. Returns true if new node is
@@ -48,13 +58,25 @@ public class SkipList<T extends Comparable<? super T>>  {
 			return false;
 		}
 		int lev=chooseLevel();
+		System.out.println("level: "+lev);
 		Entry<T> ent = new Entry<T>(x,lev);
-		for(int i=lev-1;i>=0;i--){
+		// Assign pointers for upto max level
+		for(int i=0;i< Math.min(lev ,this.maxLevel) ;i++){
 			ent.next[i]=last[i].next[i];
 			last[i].next[i]=ent;
 		}
-		ent.next[0].prev=ent;
-		ent.prev=last[0];
+		
+		//handle pointers if new level > max level
+		for(int i = Math.min(lev ,this.maxLevel); i < lev; i++) {
+			ent.next[i]=tail;
+			head.next[i]=ent;
+		}
+		
+//		ent.next[0].prev=ent;
+//		ent.prev=last[0];
+		if(lev>maxLevel){
+			maxLevel=lev;
+		}
 		size++;
 		return true;
 	}
@@ -62,31 +84,44 @@ public class SkipList<T extends Comparable<? super T>>  {
 	private int chooseLevel() {
 		int lev=1+Integer.numberOfTrailingZeros(random.nextInt());
 		lev=lev<maxLevel+1?lev:maxLevel+1;
-		if(lev>maxLevel){
-			maxLevel=lev;
-		}
 		return lev;
 	}
 
 	// Find smallest element that is greater or equal to x
 	public T ceiling(T x) {
-		return null;
+		if(contains(x)) {
+			Entry<T> ele ;
+			ele =  last[0].next[0];
+			if(ele.next[0].element != null) {
+				return (T) ele.next[0].element;
+			}
+			else{
+				return ele.element;
+			}	
+		}else {
+			return null;
+		}
+		
 	}
 
 	// Does list contain x?
 	public boolean contains(T x) {
 		find(x);
-	    return last[0].next[0].element==x;
+		if(last[0].next[0].element != null) {
+			return last[0].next[0].element==x;
+		}else {
+			return false;
+		}
+	    
 	}
 
 	private void find(T x) {
 		Entry<T> p=head;
-		for (int i=maxLevel-1 ;i>=0;i--){
-			while(p.next[i].element.compareTo(x)<0){
-				p=p.next[i];
-				}
+		for (int i= this.maxLevel-1 ;i>=0;i--){
+			while(p.next[i].element != null && p.next[i].element.compareTo(x) < 0 ){
+				p = p.next[i];
+			}
 			last[i]=p;
-			
 		}
 			
 		
@@ -94,16 +129,31 @@ public class SkipList<T extends Comparable<? super T>>  {
 
 	// Return first element of list
 	public T first() {
-		return null;
+		if(size==0){
+			return null;
+		}
+		else{
+		T ent= (T) head.next[0].element;
+		return ent ;
+			}
 	}
 
 	// Find largest element that is less than or equal to x
 	public T floor(T x) {
+		if(contains(x)) {
+			Entry<T> ele = last[0];
+			return ele.element;
+		}
 		return null;
 	}
 
 	// Return element at index n of list. First element is at index 0.
 	public T get(int n) {
+		return null;
+	}
+
+	// O(n) algorithm for get(n)
+	public T getLinear(int n) {
 		if(n<0||n>size-1){
 			throw new  NoSuchElementException();
 		}
@@ -112,11 +162,6 @@ public class SkipList<T extends Comparable<? super T>>  {
 			p=p.next[0];
 		}
 		return p.element;
-	}
-
-	// O(n) algorithm for get(n)
-	public T getLinear(int n) {
-		return null;
 	}
 
 	// Optional operation: Eligible for EC.
@@ -128,6 +173,9 @@ public class SkipList<T extends Comparable<? super T>>  {
 
 	// Is the list empty?
 	public boolean isEmpty() {
+		if(size==0){
+			return true;
+		}
 		return false;
 	}
 
@@ -156,13 +204,13 @@ public class SkipList<T extends Comparable<? super T>>  {
 		Entry<T> ent=last[0].next[0];
 		for(int i=0;i<=ent.next.length-1;i++){
 			last[i].next[i]=ent.next[i];
-		}
+		}		
 		size=size-1;
 		return ent.element;
 	}
 
 	// Return the number of elements in the list
 	public int size() {
-		return 0;
+		return size;
 	}
 }
