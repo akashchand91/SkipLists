@@ -215,7 +215,61 @@ public class SkipList<T extends Comparable<? super T>>  {
 	// list
 	// Not a standard operation in skip lists. Eligible for EC.
 	public void rebuild() {
+		Entry<T>[] newList;
+		int newMaxLevel = (int) Math.ceil((Math.log(size + 1) / Math.log(2)));
+		if (maxLevel < newMaxLevel) {
+			newList = new Entry[size];
+			rebuild(newList, 0, size - 1, maxLevel + 1);
+			rebuildList(newList, maxLevel + 1);
+			this.maxLevel = maxLevel + 1;
+		} else if (maxLevel > newMaxLevel) {
+			newList = new Entry[size];
+			rebuild(newList, 0, size - 1, maxLevel - 1);
+			rebuildList(newList, maxLevel - 1);
+			this.maxLevel = maxLevel - 1;
+		}
+	}
 
+	private void rebuild(Entry<T>[] newList, int start, int end, int newMaxLevel) { // recursively create entries of new
+																					// levels
+		if (start <= end) {
+			if (newMaxLevel == 0) {
+				for (int i = start; i <= end; i++) {
+					newList[i] = new Entry<T>(null, 0);
+				}
+			} else {
+				int mid = (start + end) / 2;
+				newList[mid] = new Entry<T>(null, newMaxLevel);
+				rebuild(newList, start, mid - 1, newMaxLevel - 1);
+				rebuild(newList, mid + 1, end, newMaxLevel - 1);
+
+			}
+		}
+	}
+
+	private void rebuildList(Entry<T>[] newList, int newMaxLevel) { // set up links for newly created skip list
+		Entry<T> newHeader = new Entry<T>(null, newMaxLevel);
+		Entry<T>[] prev = new Entry[newMaxLevel + 1]; // store the current entry to update its nextPointers later
+		Entry<T> p = head.next[0];
+		int newListIndex = 0;
+		int headerNextIndex = 0; // variable to keep track of next index at which nextPointers has to be filled
+		while (p != null) {
+			for (int i = 0; i < newList[newListIndex].next.length; i++) {
+				if (headerNextIndex <= newMaxLevel && headerNextIndex == i) {
+					newHeader.next[headerNextIndex] = newList[newListIndex];
+					headerNextIndex++;
+				}
+				if (prev[i] != null) {
+					prev[i].next[i] = newList[newListIndex]; // update the nextPointers of previously stored entry
+				}
+				prev[i] = newList[newListIndex]; // store the current entry to update its nextPointers later
+			}
+			newList[newListIndex].element = p.element;
+			newListIndex++;
+			p = p.next[0];
+		}
+		tail = newList[newList.length - 1];
+		this.head = newHeader;
 	}
 
 	// Remove x from list. Removed element is returned. Return null if x not in list
