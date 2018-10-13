@@ -32,6 +32,10 @@ public class SkipList<T extends Comparable<? super T>>  {
 		public E getElement() {
 			return element;
 		}
+//		@Override
+//		public String toString() {
+//			return this.element+" , "+this.span.toString();
+//		}
 	}
 	
 	Entry<T> head,tail;
@@ -196,7 +200,7 @@ public class SkipList<T extends Comparable<? super T>>  {
 		for (int i = 0; i <= n; i++) {
 			p = p.next[0];
 		}
-		System.out.println("index : "+n+" element : "+p.element);
+		//System.out.println("index : "+n+" element : "+p.element);
 		return p.element;
 	}
 
@@ -208,21 +212,21 @@ public class SkipList<T extends Comparable<? super T>>  {
 			throw new  NoSuchElementException();
 		}
 		Entry<T> p = head;
-		int index = 0;
+		int index = -1;
 		for (int i = this.maxLevel - 1; i >= 0; i--) {
-			if(index+p.span[i]>n+1)
+			if(index+p.span[i]>n)
 				continue;
 			index +=p.span[i];
-			while (p.next[i].element != null &&  index <= n+1) {	
+			while (p.next[i].element != null &&  index <= n) {	
 				p = p.next[i];
-				if(index+p.span[i]>n+1)
+				if(index+p.span[i]>n)
 					break;
 				index +=p.span[i];
 			}
-			if(index==n+1)
-				break;
+//			if(index==n)
+//				break;
 		}
-		System.out.println("index : "+n+" element : "+p.element);
+		//System.out.println("index : "+n+" element : "+p.element);
 		return p.element;
 	}
 
@@ -344,7 +348,7 @@ public class SkipList<T extends Comparable<? super T>>  {
 			Entry<T> node = last[i];
 			last[i].span[i]=updateSpan(node, i);
 		}
-		for(int i=lev;i< Math.min(lev, this.maxLevel);i++) {
+		for(int i=Math.min(lev ,this.maxLevel);i< this.maxLevel;i++) {
 			--last[i].span[i];
 		}
 		return ent.element;

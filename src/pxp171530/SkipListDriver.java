@@ -86,12 +86,17 @@ public class SkipListDriver {
 				}
 				break;
 			}
-			case "Print": {
-				int num =sc.nextInt();
-				for(int i=0;i<num;i++) {
-					skipList.get(i);
-				}
-			}
+//			case "Print": {
+//				int num =sc.nextInt();
+//				System.out.println("GetLinear :");
+//				for(int i=0;i<num;i++) {
+//					skipList.get(i);
+//				}
+//				System.out.println("GetLog :");
+//				for(int i=0;i<num;i++) {
+//					skipList.getLog(i);
+//				}
+//			}
 
 			}
 		}
