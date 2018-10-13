@@ -32,10 +32,10 @@ public class SkipList<T extends Comparable<? super T>>  {
 		public E getElement() {
 			return element;
 		}
-//		@Override
-//		public String toString() {
-//			return this.element+" , "+this.span.toString();
-//		}
+		@Override
+		public String toString() {
+			return this.element+" , "+this.span.toString();
+		}
 	}
 	
 	Entry<T> head,tail;
@@ -149,7 +149,7 @@ public class SkipList<T extends Comparable<? super T>>  {
 	public boolean contains(T x) {
 		find(x);
 		if (last[0].next[0] != null && last[0].next[0].element != null) {
-			return last[0].next[0].element == x;
+			return last[0].next[0].element.equals(x);
 		}else {
 			return false;
 		}
@@ -200,7 +200,7 @@ public class SkipList<T extends Comparable<? super T>>  {
 		for (int i = 0; i <= n; i++) {
 			p = p.next[0];
 		}
-		//System.out.println("index : "+n+" element : "+p.element);
+		System.out.println("index : "+n+" element : "+p.element);
 		return p.element;
 	}
 
@@ -226,7 +226,7 @@ public class SkipList<T extends Comparable<? super T>>  {
 //			if(index==n)
 //				break;
 		}
-		//System.out.println("index : "+n+" element : "+p.element);
+		System.out.println("index : "+n+" element : "+p.element);
 		return p.element;
 	}
 
