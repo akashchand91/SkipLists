@@ -36,6 +36,18 @@ public class SkipList<T extends Comparable<? super T>> {
 		public String toString() {
 			return this.element + " , " + this.span.toString();
 		}
+
+		public void setNext(int level, Entry<E> node) {
+			// update next[] to level, if existing length < level
+			if (next.length - 1 < level) {
+				Entry[] newArr = new Entry[level + 1];
+				System.arraycopy(next, 0, newArr, 0, next.length);
+				newArr[level] = node;
+				next = newArr;
+			} else {
+				next[level] = node;
+			}
+		}
 	}
 
 	Entry<T> head, tail;// dummy nodes
@@ -80,26 +92,20 @@ public class SkipList<T extends Comparable<? super T>> {
 				last[i].span[i] = 1;
 				ent.span[i] = 1;
 			} else {
-
-				ent.span[i] = updateSpan(ent, i); // update new node's span
-													// values
-				last[i].span[i] = updateSpan(last[i], i); // update span values
-															// of nodes in last
-															// array
+				ent.span[i] = updateSpan(ent, i);
+				last[i].span[i] = updateSpan(last[i], i);
 			}
 		}
-		// handle span values for the levels in between lev and maxlevel if lev<
-		// maxlevel
+
+		// increasing the span count by one as these levels pass over the added node,
+		// for the levels between lev and maxlevel
 		for (int i = Math.min(lev, this.maxLevel); i < this.maxLevel; i++) {
-			last[i].span[i]++; // increasing the span count by one as these
-								// levels pass over the added node
+			last[i].span[i]++; 
 		}
 		// handle pointers if new level > max level
 		for (int i = Math.min(lev, this.maxLevel); i < lev; i++) {
 			ent.next[i] = tail;
 			head.next[i] = ent;
-
-			// code for handling span if newlevel > maxlevel goes here
 			head.span[i] = updateSpan(head, i);
 			ent.span[i] = updateSpan(ent, i);
 		}
@@ -164,11 +170,8 @@ public class SkipList<T extends Comparable<? super T>> {
 	 */
 	public boolean contains(T x) {
 		find(x);
-		if (last[0].next[0] != null && last[0].next[0].element != null) {// also
-																			// handles
-																			// null
-																			// pointer
-																			// exception.
+		// also handles null pointer case
+		if (last[0].next[0] != null && last[0].next[0].element != null) {
 			return last[0].next[0].element.equals(x);
 		} else {
 			return false;
@@ -228,7 +231,8 @@ public class SkipList<T extends Comparable<? super T>> {
 	}
 
 	/**
-	 * O(n) algorithm for get(n)
+	 * O(n) algorithm for get( index n)
+	 * 
 	 * @param n
 	 * @return
 	 */
@@ -240,12 +244,12 @@ public class SkipList<T extends Comparable<? super T>> {
 		for (int i = 0; i <= n; i++) {
 			p = p.next[0];
 		}
-		System.out.println("index : " + n + " element : " + p.element);
 		return p.element;
 	}
 
 	/**
-	 * O(log n) expected time for get(n).
+	 * O(log n) expected time for get(index n).
+	 * 
 	 * @param n
 	 * @return T
 	 */
@@ -267,7 +271,6 @@ public class SkipList<T extends Comparable<? super T>> {
 			}
 
 		}
-
 		return p.element;
 	}
 
@@ -300,6 +303,13 @@ public class SkipList<T extends Comparable<? super T>> {
 				cursor = cursor.next[0];
 				return cursor.element;
 			}
+
+			@Override
+			public void remove() {
+				if (SkipList.this.remove(cursor.element).equals(null)) {
+					System.out.println("Could not remove element:" + cursor.element);
+				}
+			}
 		};
 		return it;
 	}
@@ -320,91 +330,41 @@ public class SkipList<T extends Comparable<? super T>> {
 				}
 			}
 		}
-		System.out.println("Last : " + cursor.element);
 		return cursor.element;
 	}
 
+	public void printList() {
+		Entry<T> cursor = head;
+		while (cursor != tail) {
+			System.out.print(cursor.element + ":" + cursor.next.length + " ");
+			cursor = cursor.next[0];
+		}
+		System.out.println();
+	}
+	
 	/**
-	 * Reorganize the elements of the list into a perfect skip list.
+	 * Reorganize the elements of the list into a perfect skip list. We rebuild ONLY
+	 * when the size of list increases by power of 2 We need to convert size in
+	 * terms of power 2 to get the new maxlevel
 	 */
 	public void rebuild() {
-		Entry<T>[] newList;
-		int newMaxLevel = (int) Math.ceil((Math.log(size + 1) / Math.log(2)));
-		if (maxLevel < newMaxLevel) {
-			newList = new Entry[size];
-			rebuild(newList, 0, size - 1, maxLevel + 1);
-			rebuildList(newList, maxLevel + 1);
-			this.maxLevel = maxLevel + 1;
-		} else if (maxLevel > newMaxLevel) {
-			newList = new Entry[size];
-			rebuild(newList, 0, size - 1, maxLevel - 1);
-			rebuildList(newList, maxLevel - 1);
-			this.maxLevel = maxLevel - 1;
-		}
-	}
+		Entry<T> cursor = head;
+		Entry<T>[] newNext;
+		int newmaxlevel = (int) Math.ceil((Math.log(size() + 1) / Math.log(2)));
 
-	/**
-	 * Helper rebuild. Recursively create entries of new levels.
-	 * @param newList
-	 * @param start
-	 * @param end
-	 * @param newMaxLevel
-	 */
-	private void rebuild(Entry<T>[] newList, int start, int end, int newMaxLevel) {
-		if (start <= end) {
-			if (newMaxLevel == 0) {
-				for (int i = start; i <= end; i++) {
-					newList[i] = new Entry<T>(null, 0);
+		for (int i = 1; i < newmaxlevel; i++) {
+			cursor = head;
+			while (cursor.next != null && cursor.next[0] != null && cursor.next[i - 1] != null) {
+				newNext = cursor.next[i - 1].next;
+				if (newNext[0] == null) {
+					cursor.setNext(i, cursor.next[i - 1]);
+				} else {
+					cursor.setNext(i, newNext[i - 1]);
 				}
-			} else {
-				int mid = (start + end) / 2;
-				newList[mid] = new Entry<T>(null, newMaxLevel);
-				rebuild(newList, start, mid - 1, newMaxLevel - 1);
-				rebuild(newList, mid + 1, end, newMaxLevel - 1);
-
+				cursor = cursor.next[i];
 			}
 		}
-	}
-
-	/**
-	 * @param newList
-	 * @param newMaxLevel
-	 */
-	private void rebuildList(Entry<T>[] newList, int newMaxLevel) { // set up
-																	// links for
-																	// newly
-																	// created
-																	// skip list
-		Entry<T> newHeader = new Entry<T>(null, newMaxLevel);
-		Entry<T>[] prev = new Entry[newMaxLevel + 1]; // store the current entry
-														// to update its
-														// nextPointers later
-		Entry<T> p = head.next[0];
-		int newListIndex = 0;
-		int headerNextIndex = 0; // variable to keep track of next index at
-									// which nextPointers has to be filled
-		while (p != null) {
-			for (int i = 0; i < newList[newListIndex].next.length; i++) {
-				if (headerNextIndex <= newMaxLevel && headerNextIndex == i) {
-					newHeader.next[headerNextIndex] = newList[newListIndex];
-					headerNextIndex++;
-				}
-				if (prev[i] != null) {
-					prev[i].next[i] = newList[newListIndex]; // update the
-																// nextPointers
-																// of previously
-																// stored entry
-				}
-				prev[i] = newList[newListIndex]; // store the current entry to
-													// update its nextPointers
-													// later
-			}
-			newList[newListIndex].element = p.element;
-			newListIndex++;
-			p = p.next[0];
-		}
-		tail = newList[newList.length - 1];
-		this.head = newHeader;
+		this.maxLevel = newmaxlevel;
 	}
 
 	/**

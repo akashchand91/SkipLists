@@ -2,6 +2,7 @@ package pxp171530;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Iterator;
 import java.util.Scanner;
 
 //Driver program for skip list implementation.
@@ -50,8 +51,7 @@ public class SkipListDriver {
 			}
 			case "Get": {
 				int intOperand = sc.nextInt();
-//				skipList.get(intOperand);
-				returnValue = skipList.getLog(intOperand);
+				returnValue = skipList.get(intOperand);
 				if (returnValue != null) {
 					result = (result + returnValue) % modValue;
 				}
@@ -96,6 +96,20 @@ public class SkipListDriver {
 				for(int i=0;i<num;i++) {
 					skipList.getLog(i);
 				}
+			}
+			case "Rebuild": {
+				skipList.printList();
+				skipList.rebuild();
+				skipList.printList();
+			}
+			case "Iterator": {
+				skipList.printList();
+				Iterator<Long> it = skipList.iterator();
+				if (it.hasNext()) {
+					it.next();
+					it.remove();
+				}
+				skipList.printList();
 			}
 
 			}
