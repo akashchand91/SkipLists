@@ -50,8 +50,7 @@ public class SkipListDriver {
 			}
 			case "Get": {
 				int intOperand = sc.nextInt();
-				skipList.get(intOperand);
-				returnValue = skipList.getLog(intOperand);
+				returnValue = skipList.get(intOperand);
 				if (returnValue != null) {
 					result = (result + returnValue) % modValue;
 				}

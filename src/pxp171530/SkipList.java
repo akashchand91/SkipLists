@@ -32,10 +32,7 @@ public class SkipList<T extends Comparable<? super T>>  {
 		public E getElement() {
 			return element;
 		}
-		@Override
-		public String toString() {
-			return this.element+" , "+this.span.toString();
-		}
+
 	}
 	
 	Entry<T> head,tail;
@@ -188,7 +185,7 @@ public class SkipList<T extends Comparable<? super T>>  {
 
 	// Return element at index n of list. First element is at index 0.
 	public T get(int n) {
-		return getLinear(n);
+		return getLog(n);
 	}
 
 	// O(n) algorithm for get(n)
@@ -200,7 +197,6 @@ public class SkipList<T extends Comparable<? super T>>  {
 		for (int i = 0; i <= n; i++) {
 			p = p.next[0];
 		}
-		System.out.println("index : "+n+" element : "+p.element);
 		return p.element;
 	}
 
@@ -226,7 +222,7 @@ public class SkipList<T extends Comparable<? super T>>  {
 //			if(index==n)
 //				break;
 		}
-		System.out.println("index : "+n+" element : "+p.element);
+		
 		return p.element;
 	}
 
