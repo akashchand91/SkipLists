@@ -66,7 +66,7 @@ public class SkipList<T extends Comparable<? super T>>  {
 		}
 
 		int lev = chooseLevel();
-		System.out.println("level: " + lev);
+//		System.out.println("level: " + lev);
 		Entry<T> ent = new Entry<T>(x,lev);
 
 		// Assign pointers for upto max level
@@ -134,8 +134,8 @@ public class SkipList<T extends Comparable<? super T>>  {
 	public T ceiling(T x) {
 		if (!contains(x)) {
 			Entry<T> ele = last[0].next[0];
-			if (ele != null && ele.next[0] != null && ele.next[0].element != null) {
-				return (T) ele.next[0].element;
+			if (ele != null && ele.element != null) {
+				return (T) ele.element;
 			} else {
 				return ele.element;
 			}	
