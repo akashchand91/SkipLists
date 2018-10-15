@@ -125,11 +125,12 @@ public class SkipList<T extends Comparable<? super T>> {
 	private int updateSpan(Entry<T> node, int i) {
 		int count = 0;
 		Entry<T> targetNode = node.next[i];
+		//System.out.println(targetNode.element);
 		do {
 			count += node.span[i - 1];
 			node = node.next[i - 1];
 
-		} while (node != targetNode);
+		} while (node != targetNode && node !=tail);
 		return count;
 	}
 
@@ -364,6 +365,25 @@ public class SkipList<T extends Comparable<? super T>> {
 			}
 		}
 		this.maxLevel = newmaxlevel;
+		rebuildSpan(head);
+	}
+
+/**
+ * Updates the span values of each node
+ * @param head - head node of the list
+ */
+	private void rebuildSpan(Entry<T> head) {
+		if(head.next[0]!=tail) {
+			rebuildSpan(head.next[0]); // recursively iterating to last but one node
+		}
+		if(head==tail)
+			return;
+		head.span=new Integer[head.next.length];
+		head.span[0]=1;
+		for(int i=1;i<head.next.length;i++) {
+			head.span[i]=updateSpan(head, i);
+		}
+		
 	}
 
 	/**
