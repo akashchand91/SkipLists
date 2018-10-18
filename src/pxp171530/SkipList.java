@@ -33,7 +33,7 @@ public class SkipList<T extends Comparable<? super T>> {
 		}
 		@Override
 		public String toString() {
-			return this.element + " , " + this.span.toString();
+			return this.element+"";
 		}
 
 		public void setNext(int level, Entry<E> node) {
